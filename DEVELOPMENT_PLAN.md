@@ -1,4 +1,4 @@
-# 📅 План разработки
+# 📅 План разработки (Quantum Edition)
 
 ## 🎯 Основные вехи
 
@@ -10,22 +10,53 @@
 
 ---
 
+## ⚠️ Анализ проблем и подводных камней (до начала разработки)
+
+### Проблема 1: Производительность при x20 врагах
+| Параметр | Стандарт | x20 | Решение |
+|----------|----------|-----|---------|
+| Врагов на волне | 5-15 | 100-300 | Спавн пачками по 20, Pooling |
+| AI вычислений | 1ms | 20ms | Уменьшить дальность агро |
+| Сетевой трафик | 1KB | 20KB | Группировать обновления |
+
+**Решение**: Спавнить врагов пачками по 20 с интервалом 0.5 сек.
+
+### Проблема 2: Баланс наград при x20
+| Было | Стало | Решение |
+|------|-------|---------|
+| 10 Gold за Goblin | 0.5-1 Gold | Награда обратно пропорциональна множителю |
+| 5 XP за Goblin | 0.25-0.5 XP | XP = база / (враги на волне) |
+
+### Проблема 3: Квантовые эффекты
+| Эффект | Подводный камень | Решение |
+|--------|------------------|---------|
+| Суперпозиция | Враги дублируются бесконечно | Ограничить 3 клонами |
+| Запутанность | Урон распределяется между всеми | Максимум 5 связанных врагов |
+| Телепортация | Выход за пределы карты | Проверка границ |
+
+### Проблема 4: Звуки при 300 врагах
+| Проблема | Решение |
+|----------|---------|
+| 300 звуков одновременно | Ограничить 10 звуками в кадре |
+| Сбой звукового движка | Приоритеты: босс > игрок > враг |
+
+### Проблема 5: Verse-производительность
+| Проблема | Решение |
+|----------|---------|
+| Циклы по 300 врагам | Использовать `async` и `spawn` |
+| Сохранение данных | Кэшировать в памяти, сохранять раз в минуту |
+
+---
+
 ## 📊 ФАЗА 1: MVP (7 дней)
 
-**Цель**: Функциональный остров с базовыми механиками.  
-**Результат**: Можно тестировать основной геймплей.
+**Цель**: Функциональный остров с базовыми механиками.
 
 ### День 1: Структура и подготовка
 **Задачи**:
 - [ ] Создать основную структуру острова в UEFN
 - [ ] Спланировать 3 основные зоны (Таверна, Лес, Лобби)
 - [ ] Установить спауны игроков
-- [ ] Создать базовое освещение
-
-**Устройства**:
-- Spawn Pad
-- Teleporter
-- Prop (деревья, дома)
 
 **Время**: 4-6 часов
 
@@ -33,379 +64,440 @@
 
 ### День 2: Система монет
 **Задачи**:
-- [ ] Создать Stat Manager для отслеживания Gold
-- [ ] Начислять 50 Gold при входе
-- [ ] Создать HUD для отображения Gold
-- [ ] Написать verse-скрипт `economy_manager.verse`
+- [ ] Система отслеживания Gold
+- [ ] 50 Gold при входе
+- [ ] HUD для отображения Gold
 
-**Устройства**:
-- Stat Manager
-- Item Granter
-- Text Renderer
-
-**Verse-код**:
+**Verse-код** (`economy_manager.verse`):
 ```verse
-# economy_manager.verse
-var player_gold: int = 50
-
-func AddGold(amount: int) -> void:
-    player_gold = Min(player_gold + amount, 999999)
-    UpdateHUD()
-
-func SpendGold(amount: int) -> bool:
-    if player_gold >= amount:
-        player_gold -= amount
-        UpdateHUD()
-        return true
-    return false
-```
-
-**Время**: 3-4 часа
-
----
-
-### День 3: PvE враги (волна 1)
-**Задачи**:
-- [ ] Спроектировать 2 типа врагов (Goblin, Orc)
-- [ ] Создать AI Spawner для волн
-- [ ] Враги должны атаковать игрока
-- [ ] Убитый враг дает 15 Gold
-
-**Враги**:
-- Goblin: 20 HP, 3 урона
-- Orc: 40 HP, 5 урона
-
-**Устройства**:
-- AI Spawner
-- Damage Volume
-- Item Granter (награда)
-- Prop Mover (анимация атаки)
-
-**Время**: 5-6 часов
-
----
-
-### День 4: Простой магазин
-**Задачи**:
-- [ ] Создать 5 базовых товаров (скины)
-- [ ] Проверка золота перед покупкой
-- [ ] Выдача товара после покупки
-- [ ] Вычитание золота из счета
-
-**Товары**:
-- Скин 1: 150 Gold
-- Скин 2: 200 Gold
-- Скин 3: 250 Gold
-- Бустер Gold: 300 Gold
-- Бустер Опыта: 300 Gold
-
-**Устройства**:
-- Conditional Button
-- Item Granter
-- Text Renderer
-
-**Verse-код**:
-```verse
-# shop_manager.verse (базовая версия)
-func BuyItem(item_id: string, price: int) -> bool:
-    if player_economy.SpendGold(price):
-        GrantItem(item_id)
-        return true
-    return false
-```
-
-**Время**: 3-4 часа
-
----
-
-### День 5: Система прогрессии
-**Задачи**:
-- [ ] Создать Stat Manager для уровня и опыта
-- [ ] За убийство врага +5 опыта
-- [ ] При наборе 100 опыта → уровень +1
-- [ ] Отображение уровня на экране
-
-**Механика**:
-- Уровень 1: 0 опыта
-- Уровень 2: 100 опыта нужно
-- Уровень 3: 200 опыта нужно
-- И т.д.
-
-**Устройства**:
-- Stat Manager (для уровня)
-- Text Renderer (отображение)
-
-**Verse-код**:
-```verse
-# progression.verse
-var player_level: int = 1
-var player_exp: int = 0
-
-func AddExp(amount: int) -> void:
-    player_exp += amount
-    var exp_for_level = player_level * 100
-    if player_exp >= exp_for_level:
-        player_level += 1
-        player_exp = 0
-        OnLevelUp()
-
-func OnLevelUp() -> void:
-    AddGold(50)  # Бонус за уровень
-    # Можно добавить эффект
-```
-
-**Время**: 4-5 часов
-
----
-
-### День 6: PvP система (базовая)
-**Задачи**:
-- [ ] Создать кнопку "Вызвать на дуэль"
-- [ ] Игроки могут ставить 50-500 Gold
-- [ ] 1-минутный бой
-- [ ] Убийство = победа
-- [ ] Распределение наград (30% ставке победителю)
-
-**Устройства**:
-- Conditional Button
-- Team Selector (для разных команд)
-- Countdown Manager (1 минута)
-- Item Granter (награды)
-
-**Время**: 5-6 часов
-
----
-
-### День 7: Полировка и тестирование
-**Задачи**:
-- [ ] Найти и исправить баги
-- [ ] Отбалансировать награды
-- [ ] Проверить все кнопки работают
-- [ ] Добавить качество жизни (звуки, эффекты)
-- [ ] Подготовить версию к тестированию
-
-**Что проверить**:
-- [ ] Враги не спавнятся везде
-- [ ] Gold считается правильно
-- [ ] Магазин работает стабильно
-- [ ] PvP не дает дважды награду
-- [ ] Уровни повышаются корректно
-
-**Время**: 4-5 часов
-
----
-
-## 📊 ФАЗА 2: Версия 1.0 (14 дней, дни 8-14)
-
-**Цель**: Полнофункциональный остров с балансом.
-
-### День 8: Подземелье (1/3)
-**Задачи**:
-- [ ] Создать дизайн подземелья (3D локация)
-- [ ] Добавить точку входа с проверкой (100 Gold первый раз)
-- [ ] Первая волна (5 врагов на 1 минуту)
-
-**Время**: 4-5 часов
-
----
-
-### День 9: Подземелье (2/3)
-**Задачи**:
-- [ ] Волны 2-3 (8 врагов, потом 10 врагов)
-- [ ] Боссы (150 HP, специальная способность)
-- [ ] Система выхода (если умрешь, теряешь 50 Gold)
-
-**Время**: 5-6 часов
-
----
-
-### День 10: Подземелье (3/3)
-**Задачи**:
-- [ ] Волны 4-5 (12 и 15 врагов)
-- [ ] 2 босса на последней волне
-- [ ] Финальная награда (500 Gold + 100 опыта)
-- [ ] Очистить баги волн
-
-**Время**: 4-5 часов
-
----
-
-### День 11: Статистика и перки
-**Задачи**:
-- [ ] Добавить распределение поинтов (ATK, DEF, HP, LCK)
-- [ ] Создать UI для распределения поинтов
-- [ ] Разблокировать первые 3 перка (Farmer's Boost, Survivor, Lucky)
-- [ ] Перки должны влиять на урон, HP, крит
-
-**Время**: 4-5 часов
-
----
-
-### День 12: Доска лидеров
-**Задачи**:
-- [ ] Отслеживать топ 10 игроков по Gold
-- [ ] Отслеживать топ 10 по уровню
-- [ ] Отслеживать топ 10 по убитым врагам
-- [ ] Создать UI доски лидеров
-
-**Время**: 3-4 часа
-
----
-
-### День 13: Квесты и достижения
-**Задачи**:
-- [ ] Создать 5 дневных квестов (убить 10 врагов, 100 Gold фарма и т.д.)
-- [ ] Создать 10 достижений (первая убийство, уровень 10, 1000 Gold и т.д.)
-- [ ] Награды за квесты и достижения
-
-**Квесты**:
-- Убить 10 Goblins → 100 Gold
-- Заработать 500 Gold → 200 Gold
-- Выиграть 3 PvP боя → 300 Gold
-
-**Время**: 4-5 часов
-
----
-
-### День 14: Балансировка и финальная полировка
-**Задачи**:
-- [ ] Проверить все награды справедливы
-- [ ] Враги не OP не UP
-- [ ] Магазин справедливо оценен
-- [ ] Игра вызывает желание продолжать играть
-- [ ] Оптимизация для 16 игроков
-
-**Метрики баланса**:
-- Новичок за 15 минут: 200-400 Gold ✅
-- Опытный за 15 минут: 400-800 Gold ✅
-- PvP один бой: ±50-200 Gold ✅
-- Прогресс: видимый прогресс каждые 5 минут ✅
-
-**Время**: 5-6 часов
-
----
-
-## 📊 ФАЗА 3: Релиз (30 дней, дни 15-30)
-
-### Дни 15-20: Дополнительный контент
-- [ ] VIP-зона (безопасный фарм 2x монеты)
-- [ ] Boss Hunt (охота на боссов отдельно)
-- [ ] 5 новых скинов в магазине
-- [ ] Events (еженедельные вызовы)
-
-### Дни 21-25: Маркетинг и подготовка
-- [ ] Создать трейлер (30 сек видео)
-- [ ] Написать описание острова
-- [ ] Подготовить скриншоты
-- [ ] Отправить на рецензию Fortnite
-
-### Дни 26-30: Финальный баланс и оптимизация
-- [ ] Убедиться, что остров работает с 16 игроками
-- [ ] Нет критических багов
-- [ ] Ответить на отзывы тестировщиков
-- [ ] Опубликовать финальную версию
-
----
-
-## 📋 Список задач (Kanban)
-
-### 🟡 В разработке (День 1-3)
-
-#### День 1
-- [ ] Структура острова
-- [ ] Спауны игроков
-- [ ] Телепортеры между зонами
-
-#### День 2
-- [x] Stat Manager для Gold
-- [x] HUD с отображением Gold
-- [x] `economy_manager.verse`
-
-#### День 3
-- [ ] AI Spawner (Goblin волна)
-- [ ] Враги атакуют игрока
-- [ ] Убийство врага → 15 Gold
-
----
-
-### 🟢 Готово (При завершении)
-- [ ] День 1 полностью
-- [ ] День 2 полностью
-- [ ] День 3 полностью
-
----
-
-### 🔴 Не начинались (День 4+)
-- [ ] Магазин
-- [ ] PvP система
-- [ ] Прогрессия
-- [ ] Подземелье
-- [ ] Лидерборд
-
----
-
-## 🎮 Метрики успеха
-
-### MVP (День 7)
-✅ Можно убивать врагов  
-✅ Можно зарабатывать Gold  
-✅ Можно тратить Gold в магазине  
-✅ Минимум 2 игроков могут играть одновременно  
-✅ Игра стабильна (нет крашей)
-
-### v1.0 (День 14)
-✅ Весь контент имплементирован  
-✅ Экономика сбалансирована  
-✅ Игра вызывает желание играть дальше  
-✅ 16 игроков могут играть без лагов  
-✅ Нет критических багов  
-
-### Релиз (День 30)
-✅ Остров в топе Fortnite Creative  
-✅ 1000+ игроков играли  
-✅ Положительные отзывы (4.5+ звезд)  
-✅ Ежедневно 100+ игроков  
-
----
-
-## 🛠️ Инструменты и ресурсы
-
-### Программное обеспечение
-- **Fortnite Creative UEFN** — Основной движок
-- **Verse Editor** — Редактор скриптов
-- **Visual Studio Code** — Написание Verse-кода
-- **GitHub** — Управление проектом
-
-### Ресурсы
-- **Fortnite Creative Assets** — Встроенные пропсы и враги
-- **Default Fortnite Models** — Скины и эффекты
-- **Sound Library** — Звуковые эффекты Fortnite
-
-### Документация
-- [Fortnite Creative UEFN Docs](https://dev.epicgames.com/documentation/en-us/uefn/uefn-overview)
-- [Verse Scripting Guide](https://dev.epicgames.com/documentation/en-us/uefn/verse-language-reference)
-- [AI Spawner Guide](https://dev.epicgames.com/documentation/en-us/uefn/ai-spawner-device)
-
----
-
-## 📊 Таблица прогресса
-
-| День | Фаза | Основная задача | Статус | Завершено |
-|------|------|-----------------|--------|-----------|
-| 1 | MVP | Структура острова | 🟡 В разработке | 0% |
-| 2 | MVP | Система монет | 🟡 В разработке | 0% |
-| 3 | MVP | PvE враги | 🟡 В разработке | 0% |
-| 4 | MVP | Магазин | 🔴 Ожидание | 0% |
-| 5 | MVP | Прогрессия | 🔴 Ожидание | 0% |
-| 6 | MVP | PvP система | 🔴 Ожидание | 0% |
-| 7 | MVP | Полировка | 🔴 Ожидание | 0% |
-| 8-10 | v1.0 | Подземелье | 🔴 Ожидание | 0% |
-| 11-12 | v1.0 | Статистика | 🔴 Ожидание | 0% |
-| 13 | v1.0 | Квесты | 🔴 Ожидание | 0% |
-| 14 | v1.0 | Баланс | 🔴 Ожидание | 0% |
-| 15-30 | Релиз | Маркетинг | 🔴 Ожидание | 0% |
-
----
-
-**Последнее обновление**: 31.05.2026  
-**Фаза**: MVP (День 1-7)
+using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+
+player_save_data := class(save_game):
+    var Gold : int = 50
+    var Banked : int = 0
+
+EconomyManager := class(creative_device):
+    @editable var StartingGold : int = 50
+    @editable var MaxGold : int = 999999
+    @editable var DeathLossPercent : int = 10
+    
+    var PlayerGold : [agent]int = map{}
+    var BankedGold : [agent]int = map{}
+    
+    OnBegin<override>()<suspends>:
+        GetPlayspace().PlayerJoinedEvent.Subscribe(OnPlayerJoined)
+        GetPlayspace().PlayerDiedEvent.Subscribe(OnPlayerDied)
+    
+    OnPlayerJoined(Player : agent) : void =
+        Saved := GetSaveData(Player)
+        if Saved = false:
+            PlayerGold[Player] = StartingGold
+            BankedGold[Player] = 0
+        else:
+            PlayerGold[Player] = Saved.Gold
+            BankedGold[Player] = Saved.Banked
+    
+    GetSaveData(Player : agent) : ?player_save_data =
+        Data := player_save_data{}
+        if Data.Load(Player): return Data
+        return false
+    
+    SavePlayerData(Player : agent) : void =
+        CurrentGold := PlayerGold[Player]
+        CurrentBanked := BankedGold[Player]
+        if (CurrentGold = false) or (CurrentBanked = false): return
+        Data := player_save_data{}
+        Data.Gold = CurrentGold
+        Data.Banked = CurrentBanked
+        Data.Save(Player)
+    
+    AddGold(Player : agent, Amount : int) : void =
+        if Amount <= 0: return
+        Current := PlayerGold[Player]
+        if Current = false: Current = 0
+        NewGold := Current + Amount
+        if NewGold > MaxGold: NewGold = MaxGold
+        PlayerGold[Player] = NewGold
+        SavePlayerData(Player)
+    
+    SpendGold(Player : agent, Amount : int) : bool =
+        if Amount <= 0: return false
+        Current := PlayerGold[Player]
+        if Current = false: return false
+        if Current >= Amount:
+            PlayerGold[Player] = Current - Amount
+            SavePlayerData(Player)
+            return true
+        return false
+    
+    GetGold(Player : agent) : int =
+        Current := PlayerGold[Player]
+        return if Current = false then 0 else Current
+    
+    LoseGoldOnDeath(Player : agent) : void =
+        Current := PlayerGold[Player]
+        if Current = false: return
+        ToLose := (Current * DeathLossPercent) / 100
+        if ToLose > 0: SpendGold(Player, ToLose)
+    
+    OnPlayerDied(Event : player_died_event) : void = LoseGoldOnDeath(Event.KilledAgent)
+    
+    HasEnoughGold(Player : agent, Amount : int) : bool =
+        Current := PlayerGold[Player]
+        return if Current = false then false else Current >= Amount
+Время: 3-4 часа
+
+День 3: PvE враги (x20 подготовка)
+Задачи:
+
+Создать AI Spawner для волн
+
+Система спавна пачками (по 20 врагов)
+
+Убитый враг дает награду (обратно пропорционально количеству)
+
+Verse-код (pve_system.verse):
+
+verse
+using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+
+PveSystem := class(creative_device):
+    @editable var Economy : economy_manager = economy_manager{}
+    @editable var EnemySpawner : spawner_device = spawner_device{}
+    @editable var KillTrigger : trigger_device = trigger_device{}
+    @editable var DifficultyLevel : int = 1  # 1-20
+    
+    var ActiveEnemies : int = 0
+    var WaveNumber : int = 0
+    
+    GetEnemyMultiplier() : float =
+        if DifficultyLevel <= 1: return 1.0
+        else if DifficultyLevel <= 5: return 1.0 + (DifficultyLevel - 1) * 0.25
+        else if DifficultyLevel <= 10: return 2.0 + (DifficultyLevel - 5) * 0.6
+        else if DifficultyLevel <= 15: return 5.0 + (DifficultyLevel - 10) * 1.4
+        else: return 12.0 + (DifficultyLevel - 15) * 1.6
+    
+    GetRewardMultiplier() : float = 1.0 / GetEnemyMultiplier()
+    
+    GetEnemyCount() : int =
+        BaseCount := 10
+        return Floor(BaseCount * GetEnemyMultiplier())
+    
+    OnBegin<override>()<suspends>:
+        if (KillTrigger <> false):
+            KillTrigger.InteractedWithEvent.Subscribe(OnEnemyKilled)
+        StartWaves()
+    
+    StartWaves()<suspends>:
+        loop:
+            WaveNumber += 1
+            EnemyCount := GetEnemyCount()
+            
+            # Спавн пачками по 20
+            for Batch in 0..Ceil(EnemyCount / 20) - 1:
+                BatchSize := Min(20, EnemyCount - Batch * 20)
+                SpawnBatch(BatchSize)
+                Sleep(0.5)
+            
+            # Ждём убийства всех врагов
+            while ActiveEnemies > 0:
+                Sleep(1.0)
+            
+            Sleep(5.0)  # Пауза между волнами
+    
+    SpawnBatch(Count : int) : void =
+        for i in 0..Count - 1:
+            ActiveEnemies += 1
+            EnemySpawner.Spawn()
+            Sleep(0.1)
+    
+    OnEnemyKilled(Player : agent, Trigger : trigger_device) : void =
+        ActiveEnemies -= 1
+        if (Economy <> false):
+            Reward := Floor(15 * GetRewardMultiplier())
+            if Reward < 1: Reward = 1
+            Economy.AddGold(Player, Reward)
+Время: 5-6 часов
+
+День 4: Магазин
+Verse-код (shop_system.verse):
+
+verse
+using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+
+ShopSystem := class(creative_device):
+    @editable var Economy : economy_manager = economy_manager{}
+    @editable var ShopButton : button_device = button_device{}
+    @editable var ItemGranter : item_granter_device = item_granter_device{}
+    @editable var ItemPrice : int = 150
+    @editable var ItemToGrant : string = "cosmetic_skin"
+    
+    OnBegin<override>()<suspends>:
+        if (ShopButton <> false):
+            ShopButton.InteractedWithEvent.Subscribe(OnBuy)
+    
+    OnBuy(Player : agent, Button : button_device) : void =
+        if (Economy <> false) and Economy.HasEnoughGold(Player, ItemPrice):
+            if Economy.SpendGold(Player, ItemPrice):
+                if (ItemGranter <> false): ItemGranter.GrantItem(Player, ItemToGrant)
+Время: 3-4 часа
+
+День 5: Система прогрессии
+Verse-код (progression.verse):
+
+verse
+using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+
+progression_save_data := class(save_game):
+    var Level : int = 1
+    var XP : int = 0
+    var StatPoints : int = 0
+    var Attack : int = 0
+    var Defense : int = 0
+    var HealthBonus : int = 0
+    var Luck : int = 0
+
+Progression := class(creative_device):
+    @editable var Economy : economy_manager = economy_manager{}
+    @editable var GoldPerLevelUp : int = 50
+    
+    var PlayerData : [agent]progression_save_data = map{}
+    
+    OnBegin<override>()<suspends>:
+        GetPlayspace().PlayerJoinedEvent.Subscribe(OnPlayerJoined)
+    
+    OnPlayerJoined(Player : agent) : void =
+        Saved := GetSaveData(Player)
+        if Saved = false:
+            PlayerData[Player] = progression_save_data{}
+        else:
+            PlayerData[Player] = Saved
+    
+    GetSaveData(Player : agent) : ?progression_save_data =
+        Data := progression_save_data{}
+        if Data.Load(Player): return Data
+        return false
+    
+    SavePlayerData(Player : agent) : void =
+        Data := PlayerData[Player]
+        if Data <> false: Data.Save(Player)
+    
+    GetXPForNextLevel(CurrentLevel : int) : int = CurrentLevel * 100
+    
+    AddXP(Player : agent, Amount : int) : void =
+        Data := PlayerData[Player]
+        if Data = false: return
+        Data.XP += Amount
+        loop:
+            NeedXP := GetXPForNextLevel(Data.Level)
+            if Data.XP >= NeedXP:
+                Data.XP -= NeedXP
+                Data.Level += 1
+                Data.StatPoints += 5
+                if (Economy <> false): Economy.AddGold(Player, GoldPerLevelUp)
+            else: break
+        SavePlayerData(Player)
+    
+    GetLevel(Player : agent) : int =
+        Data := PlayerData[Player]
+        return if Data = false then 1 else Data.Level
+Время: 4-5 часов
+
+День 6: PvP система
+Verse-код (pvp_manager.verse):
+
+verse
+using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+
+pvp_save_data := class(save_game):
+    var Elo : int = 1000
+
+PvpManager := class(creative_device):
+    @editable var Economy : economy_manager = economy_manager{}
+    @editable var WinPercent : int = 30
+    
+    var PlayerData : [agent]pvp_save_data = map{}
+    
+    OnBegin<override>()<suspends>:
+        GetPlayspace().PlayerJoinedEvent.Subscribe(OnPlayerJoined)
+    
+    OnPlayerJoined(Player : agent) : void =
+        Saved := GetSaveData(Player)
+        if Saved = false: PlayerData[Player] = pvp_save_data{}
+        else: PlayerData[Player] = Saved
+    
+    GetSaveData(Player : agent) : ?pvp_save_data =
+        Data := pvp_save_data{}
+        if Data.Load(Player): return Data
+        return false
+    
+    OnPvPFightEnd(Winner : agent, Loser : agent, Stake : int) : void =
+        if (Economy = false): return
+        if not Economy.HasEnoughGold(Loser, Stake): return
+        WinAmount := (Stake * WinPercent) / 100
+        Economy.AddGold(Winner, WinAmount)
+        Economy.SpendGold(Loser, Stake)
+Время: 5-6 часов
+
+День 7: Квантовые эффекты и звуки
+Verse-код (quantum_manager.verse):
+
+verse
+using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+
+QuantumManager := class(creative_device):
+    @editable var AudioPlayer : audio_player_device = audio_player_device{}
+    
+    var ActiveSounds : int = 0
+    var MaxConcurrentSounds : int = 10
+    
+    PlaySound(SoundName : string, Priority : int) : void =
+        if ActiveSounds >= MaxConcurrentSounds and Priority < 2: return
+        ActiveSounds += 1
+        AudioPlayer.PlaySound(SoundName)
+        spawn { Sleep(2.0); ActiveSounds -= 1 }
+    
+    ApplyQuantumEffect(Enemy : agent) : void =
+        EffectType := GetRandomInt(1, 5)
+        PlaySound("quantum_effect", 2)
+        
+        if EffectType = 1:
+            # Суперпозиция - создание клона
+            Print("Quantum Superposition")
+        else if EffectType = 2:
+            # Запутанность
+            Print("Quantum Entanglement")
+        else if EffectType = 3:
+            # Телепортация
+            Print("Quantum Teleportation")
+        else if EffectType = 4:
+            # Фазирование
+            Print("Quantum Phasing")
+        else:
+            # Квантовый скачок
+            Print("Quantum Jump")
+Время: 4-5 часов
+
+📊 ФАЗА 2: Версия 1.0 (14 дней)
+День 8-10: Подземелье (x20 врагов, квантовые боссы)
+Задачи:
+
+Создать дизайн подземелья
+
+Вход 100 Gold
+
+5 волн с множителем x20 на максимуме
+
+Квантовый босс каждые 5 волн
+
+Финальная награда: 500 Gold / множитель + 100 XP
+
+Время: 14-16 часов
+
+День 11-12: Статистика и перки
+Задачи:
+
+Распределение поинтов (ATK, DEF, HP, LCK)
+
+Перки на 5, 10, 15, 20, 25, 30 уровне
+
+Время: 8-10 часов
+
+День 13: Квесты и достижения
+Задачи:
+
+5 ежедневных квестов
+
+10 достижений
+
+Время: 4-5 часов
+
+День 14: Балансировка
+Задачи:
+
+Проверить баланс при x20 врагах
+
+Оптимизация для 16 игроков
+
+Время: 5-6 часов
+
+📊 ФАЗА 3: Релиз (30 дней)
+Дни 15-20: Дополнительный контент
+VIP-зона (2x монеты)
+
+Boss Hunt
+
+5 новых скинов
+
+Еженедельные ивенты
+
+Дни 21-25: Маркетинг
+Трейлер (30 сек)
+
+Описание острова
+
+Скриншоты
+
+Отправка на рецензию
+
+Дни 26-30: Финальный баланс
+Тест с 16 игроками
+
+Исправление критических багов
+
+Публикация
+
+🎮 Метрики успеха
+MVP (День 7)
+✅ Можно убивать врагов (в т.ч. пачками по 20)
+
+✅ Можно зарабатывать Gold
+
+✅ Можно тратить Gold в магазине
+
+✅ 2+ игроков могут играть одновременно
+
+v1.0 (День 14)
+✅ x20 врагов работает без лагов
+
+✅ Квантовые эффекты стабильны
+
+✅ Звуки не перегружают движок
+
+✅ 16 игроков без критических багов
+
+Релиз (День 30)
+✅ 1000+ игроков
+
+✅ Рейтинг 4.5+ звезд
+
+✅ 100+ игроков ежедневно
+
+📊 Таблица прогресса
+День	Фаза	Задача	Статус
+1	MVP	Структура	🟡
+2	MVP	Экономика	🟡
+3	MVP	PvE x20	🟡
+4	MVP	Магазин	🔴
+5	MVP	Прогрессия	🔴
+6	MVP	PvP	🔴
+7	MVP	Квант/Звуки	🔴
+8-10	v1.0	Подземелье	🔴
+11-12	v1.0	Статы/Перки	🔴
+13	v1.0	Квесты	🔴
+14	v1.0	Баланс	🔴
+15-30	Релиз	Маркетинг	🔴
+Последнее обновление: 31.05.2026
+Фаза: MVP (День 1-7)
