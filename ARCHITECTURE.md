@@ -34,318 +34,407 @@
 ### Зона 1: Таверна (Безопасная)
 **Размер**: 200x200м  
 **Враги**: Нет  
-**Функции**:
-- Спавн новых игроков
-- Магазин товаров
-- Банк (хранилище)
-- Доска квестов
-- NPC информация
-
-**Устройства**: Teleporter, Conditional Button, Item Granter
-
----
+**Функции**: Спавн, магазин, банк, квесты
 
 ### Зона 2: Лесной фарм (Новичок)
 **Размер**: 500x400м  
-**Враги**: Goblin (5-20 LVL), Orc (10-25 LVL)  
-**Опасность**: Низкая  
-
-**Механика**:
-- Волны врагов каждые 30 сек
-- Максимум 10 врагов на зоне
-- Враги: 20 HP, 3-5 урона
-- Награда: 10-20 Gold + 5 опыта
-
-**Устройства**: AI Spawner, Prop Mover, Damage Volume
-
----
+**Враги**: Goblin, Orc  
+**Награда**: 10-20 Gold + 5 опыта
 
 ### Зона 3: Подземелье (Продвинутое)
 **Размер**: 800x600м  
-**Враги**: Skeletal Warrior, Dark Mage, Demon Boss  
-**Опасность**: Средняя-Высокая  
-
-**5 волн**:
-1. 5 Skeletal Warriors
-2. 8 Dark Mages
-3. 10 врагов + Demon Boss
-4. 12 врагов
-5. 15 врагов + 2 Bosses
-
-**Вход**: 100 Gold (первый), 50 Gold (повторный)  
-**Вывод**: 500 Gold + 100 опыта
-
----
+**Враги**: Skeletal, Mage, Demon Boss  
+**5 волн**, вход 100/50 Gold, выход 500 Gold + 100 XP
 
 ### Зона 4: PvP Арена
 **Размер**: 400x300м  
-**Враги**: Другие игроки  
-**Механика**:
-- Ставка 50-500 Gold
-- Победитель: +30% ставки
-- Проигравший: -100% ставки
-- Рейтинг система (Elo)
-
----
+**Ставка**: 50-500 Gold, победитель +30%, проигравший -100%
 
 ### Зона 5: Лобби/Хаб
 **Размер**: 400x400м  
-**Функции**:
-- Просмотр статистики
-- Доска лидеров
-- Выбор зоны
-- Восстановление HP
+**Функции**: Статистика, лидеры, выбор зоны
 
 ---
 
 ## 📊 Система прогрессии
 
-### Уровни (1-100)
-
 **Опыт для уровня**:
-```
-Уровень 1-10:   опыт = 100 * Уровень
-Уровень 11-50:  опыт = 500 * Уровень
-Уровень 51-100: опыт = 1000 * Уровень
-```
+- 1-10: 100 × уровень
+- 11-50: 500 × уровень
+- 51-100: 1000 × уровень
 
-**Примеры**:
-- 5 → 6 = 600 опыта
-- 25 → 26 = 13,000 опыта
-- 75 → 76 = 76,000 опыта
+**Статистика (5 поинтов за уровень)**:
+- ATK: +1 урон
+- DEF: +1% отскок
+- HP: +5 здоровья
+- LCK: +1% крит
 
----
-
-### Статистика (распределяется при уровне)
-
-**За уровень**: +5 поинтов на выбор
-
-| Статистика | За поинт | Эффект |
-|------------|----------|--------|
-| ATK (Атака) | +1 | +1 урон |
-| DEF (Защита) | +1 | +1% отскок урона |
-| HP (Выносливость) | +5 | +5 здоровья |
-| LCK (Удача) | +1 | +1% крит и лут |
-
-**Примеры**:
-- 10 поинтов ATK = +10 урона
-- 10 поинтов DEF = 10% урона отскакивает
-- 10 поинтов HP = +50 HP
-- 10 поинтов LCK = 10% крит урон
-
----
-
-### Перки (каждые 5 уровней)
-
-| Перк | Уровень | Эффект |
-|------|---------|--------|
-| Farmer's Boost | 5 | +15% Gold |
-| Survivor | 10 | +20% HP |
-| Lucky | 15 | +25% крит урон |
-| Banker | 20 | +1 слот в банке |
-| Warrior | 25 | +10% ATK |
-| Immortal | 30 | -10% входящий урон |
+**Перки**:
+- 5: Farmer's Boost (+15% Gold)
+- 10: Survivor (+20% HP)
+- 15: Lucky (+25% крит)
+- 20: Banker (+1 слот банка)
+- 25: Warrior (+10% ATK)
+- 30: Immortal (-10% урон)
 
 ---
 
 ## 💰 Экономика
 
-### Валюта: Gold Coins (⚜️)
+**Начало**: 50 Gold, макс: 999,999
 
-**Начало**: 50 Gold  
-**Максимум**: 999,999 Gold  
-**Хранилище**: В банке (10 слотов)
+**Источники**: Goblin 10-15, Orc 20-30, Skeletal 40-60, Mage 50-80, Boss 300-500
 
----
-
-### Источники Gold
-
-| Источник | Сумма | Частота |
-|----------|-------|---------|
-| Убить Goblin | 10-15 | За врага |
-| Убить Orc | 20-30 | За врага |
-| Убить Skeletal | 40-60 | За врага |
-| Убить Mage | 50-80 | За врага |
-| Убить Boss | 300-500 | Редко |
-| PvP победа | Ставка × 1.3 | За бой |
-| Daily quest | 100-500 | Раз в сутки |
-| Достижение | 200-1000 | Один раз |
+**Потеря**: смерть 10%, поражение в PvP 100% ставки
 
 ---
 
-### Траты Gold
+## 👹 PvE враги
 
-| Трата | Сумма |
-|------|-------|
-| Скин | 150-500 |
-| Бустер (1 час) | 200 |
-| VIP доступ (1 неделя) | 1000 |
-| Подземелье вход | 100 (1-й), 50 (повтор) |
-| Boss Hunt | 500 |
-
----
-
-### Потеря Gold
-
-| Сценарий | Потеря |
-|----------|--------|
-| Смерть в PvE | 10% запаса |
-| Поражение в PvP | 100% ставки |
-| Выход на волне 2 | 50 Gold штраф |
-
----
-
-## 👹 PvE система
-
-### Враги и их способности
-
-#### Goblin (LVL 5-15)
-- HP: 20
-- ATK: 3-5
-- Награда: 10-15 Gold, 5 XP
-- Способность: Убежать (-50% урон)
-
-#### Orc (LVL 10-25)
-- HP: 40
-- ATK: 5-8
-- Награда: 20-30 Gold, 10 XP
-- Способность: Удар по площади
-
-#### Skeletal Warrior (LVL 20-40)
-- HP: 60
-- ATK: 8-12
-- Награда: 40-60 Gold, 20 XP
-- Способность: Парирование (30% отскок)
-
-#### Dark Mage (LVL 30-50)
-- HP: 50
-- ATK: 10-15
-- Награда: 50-80 Gold, 25 XP
-- Способность: Магический снаряд
-
-#### Demon Boss (LVL 50+)
-- HP: 150
-- ATK: 15-20
-- Награда: 300-500 Gold, 100 XP
-- Способность 1: Стена огня (20% макс HP урон)
-- Способность 2: Телепортация
+| Враг | HP | ATK | Награда |
+|------|-----|-----|---------|
+| Goblin | 20 | 3-5 | 10-15 Gold, 5 XP |
+| Orc | 40 | 5-8 | 20-30 Gold, 10 XP |
+| Skeletal | 60 | 8-12 | 40-60 Gold, 20 XP |
+| Dark Mage | 50 | 10-15 | 50-80 Gold, 25 XP |
+| Demon Boss | 150 | 15-20 | 300-500 Gold, 100 XP |
 
 ---
 
 ## ⚔️ PvP система
 
-### Механика дуэли
-1. Вызов → Выбор ставки
-2. 1-минутный бой
-3. Убийство = победа
-
-### Награды/Штрафы
-- **Победитель**: +30% ставки
-- **Проигравший**: -100% ставки
-
-### Рейтинг (Elo система)
-- **Начало**: 1000 ELO
-- **Победа**: +25 ELO
-- **Поражение**: -15 ELO
-
----
-
-## 🛒 Магазин
-
-### Премиум товары
-
-**Косметика** (150-500 Gold):
-- 25 уникальных скинов
-- Эффекты эмоций
-- Трейлы
-
-**Улучшения** (200-1000 Gold):
-- Бустер Gold +50%
-- Бустер Опыта +50%
-- Слоты банка
-
-**Подписки** (1000 Gold/неделя):
-- +30% Gold
-- +20% XP
-- VIP-только зона
+**Elo**: начало 1000, победа +25, поражение -15
 
 ---
 
 ## ⚙️ Verse-скрипты
 
-### 1. economy_manager.verse
+### economy_manager.verse
 ```verse
-var player_gold: int = 50
+using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
 
-func AddGold(amount: int) -> void:
-    player_gold = Min(player_gold + amount, 999999)
+player_save_data := class(save_game):
+    var Gold : int = 50
+    var Banked : int = 0
+    var Slots : int = 1
 
-func SpendGold(amount: int) -> bool:
-    if player_gold >= amount:
-        player_gold -= amount
+EconomyManager := class(creative_device):
+    @editable var StartingGold : int = 50
+    @editable var MaxGold : int = 999999
+    @editable var MaxBankSlots : int = 10
+    @editable var DeathLossPercent : int = 10
+    @editable var PvPWinPercent : int = 30
+    @editable var BankSlotCost : int = 100
+    
+    var PlayerGold : [agent]int = map{}
+    var BankedGold : [agent]int = map{}
+    var BankSlots : [agent]int = map{}
+    
+    OnBegin<override>()<suspends>:
+        GetPlayspace().PlayerJoinedEvent.Subscribe(OnPlayerJoined)
+        GetPlayspace().PlayerDiedEvent.Subscribe(OnPlayerDied)
+    
+    OnPlayerJoined(Player : agent) : void =
+        Saved := GetSaveData(Player)
+        if Saved = false:
+            PlayerGold[Player] = StartingGold
+            BankedGold[Player] = 0
+            BankSlots[Player] = 1
+        else:
+            PlayerGold[Player] = Saved.Gold
+            BankedGold[Player] = Saved.Banked
+            BankSlots[Player] = Saved.Slots
+    
+    GetSaveData(Player : agent) : ?player_save_data =
+        Data := player_save_data{}
+        if Data.Load(Player): return Data
+        return false
+    
+    SavePlayerData(Player : agent) : void =
+        CurrentGold := PlayerGold[Player]
+        CurrentBanked := BankedGold[Player]
+        CurrentSlots := BankSlots[Player]
+        if (CurrentGold = false) or (CurrentBanked = false) or (CurrentSlots = false): return
+        Data := player_save_data{}
+        Data.Gold = CurrentGold
+        Data.Banked = CurrentBanked
+        Data.Slots = CurrentSlots
+        Data.Save(Player)
+    
+    AddGold(Player : agent, Amount : int) : void =
+        if Amount <= 0: return
+        Current := PlayerGold[Player]
+        if Current = false: Current = 0
+        NewGold := Current + Amount
+        if NewGold > MaxGold: NewGold = MaxGold
+        PlayerGold[Player] = NewGold
+        SavePlayerData(Player)
+    
+    SpendGold(Player : agent, Amount : int) : bool =
+        if Amount <= 0: return false
+        Current := PlayerGold[Player]
+        if Current = false: return false
+        if Current >= Amount:
+            PlayerGold[Player] = Current - Amount
+            SavePlayerData(Player)
+            return true
+        return false
+    
+    GetGold(Player : agent) : int =
+        Current := PlayerGold[Player]
+        return if Current = false then 0 else Current
+    
+    DepositGold(Player : agent, Amount : int) : bool =
+        if Amount <= 0: return false
+        if not SpendGold(Player, Amount): return false
+        CurrentBanked := BankedGold[Player]
+        if CurrentBanked = false: CurrentBanked = 0
+        BankedGold[Player] = CurrentBanked + Amount
+        SavePlayerData(Player)
         return true
-    return false
+    
+    WithdrawGold(Player : agent, Amount : int) : bool =
+        if Amount <= 0: return false
+        CurrentBanked := BankedGold[Player]
+        if CurrentBanked = false: return false
+        if CurrentBanked >= Amount:
+            BankedGold[Player] = CurrentBanked - Amount
+            AddGold(Player, Amount)
+            return true
+        return false
+    
+    GetBankedGold(Player : agent) : int =
+        Current := BankedGold[Player]
+        return if Current = false then 0 else Current
+    
+    BuyBankSlot(Player : agent) : bool =
+        CurrentSlots := BankSlots[Player]
+        if CurrentSlots = false: return false
+        if CurrentSlots >= MaxBankSlots: return false
+        if SpendGold(Player, BankSlotCost):
+            BankSlots[Player] = CurrentSlots + 1
+            SavePlayerData(Player)
+            return true
+        return false
+    
+    LoseGoldOnDeath(Player : agent) : void =
+        Current := PlayerGold[Player]
+        if Current = false: return
+        ToLose := (Current * DeathLossPercent) / 100
+        if ToLose > 0: SpendGold(Player, ToLose)
+    
+    OnPlayerDied(Event : player_died_event) : void = LoseGoldOnDeath(Event.KilledAgent)
+    
+    HasEnoughGold(Player : agent, Amount : int) : bool =
+        Current := PlayerGold[Player]
+        return if Current = false then false else Current >= Amount
+progression.verse
+verse
+using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
 
-func GetGold() -> int:
-    return player_gold
-```
+progression_save_data := class(save_game):
+    var Level : int = 1
+    var XP : int = 0
+    var StatPoints : int = 0
+    var Attack : int = 0
+    var Defense : int = 0
+    var HealthBonus : int = 0
+    var Luck : int = 0
 
-### 2. progression.verse
-```verse
-var player_level: int = 1
-var player_exp: int = 0
+Progression := class(creative_device):
+    @editable var Economy : economy_manager = economy_manager{}
+    @editable var BaseXPPerLevel : int = 100
+    @editable var GoldPerLevelUp : int = 50
+    
+    var PlayerData : [agent]progression_save_data = map{}
+    
+    OnBegin<override>()<suspends>:
+        GetPlayspace().PlayerJoinedEvent.Subscribe(OnPlayerJoined)
+    
+    OnPlayerJoined(Player : agent) : void =
+        Saved := GetSaveData(Player)
+        if Saved = false:
+            PlayerData[Player] = progression_save_data{}
+        else:
+            PlayerData[Player] = Saved
+    
+    GetSaveData(Player : agent) : ?progression_save_data =
+        Data := progression_save_data{}
+        if Data.Load(Player): return Data
+        return false
+    
+    SavePlayerData(Player : agent) : void =
+        Data := PlayerData[Player]
+        if Data <> false: Data.Save(Player)
+    
+    GetXPForNextLevel(CurrentLevel : int) : int =
+        if CurrentLevel <= 10: return BaseXPPerLevel * CurrentLevel
+        else if CurrentLevel <= 50: return 500 * CurrentLevel
+        else: return 1000 * CurrentLevel
+    
+    AddXP(Player : agent, Amount : int) : void =
+        Data := PlayerData[Player]
+        if Data = false: return
+        Data.XP += Amount
+        loop:
+            NeedXP := GetXPForNextLevel(Data.Level)
+            if Data.XP >= NeedXP:
+                Data.XP -= NeedXP
+                Data.Level += 1
+                Data.StatPoints += 5
+                if (Economy <> false): Economy.AddGold(Player, GoldPerLevelUp)
+            else: break
+        SavePlayerData(Player)
+    
+    GetLevel(Player : agent) : int =
+        Data := PlayerData[Player]
+        return if Data = false then 1 else Data.Level
+    
+    UpgradeStat(Player : agent, StatName : string) : bool =
+        Data := PlayerData[Player]
+        if Data = false: return false
+        if Data.StatPoints <= 0: return false
+        if StatName = "attack": Data.Attack += 1
+        else if StatName = "defense": Data.Defense += 1
+        else if StatName = "health": Data.HealthBonus += 1
+        else if StatName = "luck": Data.Luck += 1
+        else: return false
+        Data.StatPoints -= 1
+        SavePlayerData(Player)
+        return true
+    
+    GetAttack(Player : agent) : int =
+        Data := PlayerData[Player]
+        return if Data = false then 0 else Data.Attack
+    
+    GetDefense(Player : agent) : int =
+        Data := PlayerData[Player]
+        return if Data = false then 0 else Data.Defense
+    
+    GetHealthBonus(Player : agent) : int =
+        Data := PlayerData[Player]
+        return if Data = false then 0 else Data.HealthBonus
+    
+    GetLuck(Player : agent) : int =
+        Data := PlayerData[Player]
+        return if Data = false then 0 else Data.Luck
+    
+    GetStatPoints(Player : agent) : int =
+        Data := PlayerData[Player]
+        return if Data = false then 0 else Data.StatPoints
+pve_system.verse
+verse
+using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
 
-func AddExp(amount: int) -> void:
-    player_exp += amount
-    var exp_needed = player_level * 100
-    if player_exp >= exp_needed:
-        LevelUp()
+PveSystem := class(creative_device):
+    @editable var Economy : economy_manager = economy_manager{}
+    @editable var Progression : progression = progression{}
+    @editable var WaveArea : trigger_device = trigger_device{}
+    @editable var EnemySpawner : spawner_device = spawner_device{}
+    @editable var EntryCost : int = 100
+    @editable var ReentryCost : int = 50
+    
+    var HasEnteredBefore : [agent]bool = map{}
+    
+    OnBegin<override>()<suspends>:
+        if (WaveArea <> false): WaveArea.InteractedWithEvent.Subscribe(OnPlayerEnterWave)
+    
+    OnPlayerEnterWave(Player : agent, Trigger : trigger_device) : void =
+        if (Economy = false): return
+        Entered := HasEnteredBefore[Player]
+        Cost := if Entered = false then EntryCost else ReentryCost
+        if not Economy.HasEnoughGold(Player, Cost): return
+        Economy.SpendGold(Player, Cost)
+        HasEnteredBefore[Player] = true
+        spawn_loop(Player)
+    
+    spawn_loop(Player : agent)<suspends>:
+        CurrentWave := 0
+        loop:
+            CurrentWave += 1
+            if CurrentWave > 5:
+                if (Economy <> false): Economy.AddGold(Player, 500)
+                if (Progression <> false): Progression.AddXP(Player, 100)
+                break
+            EnemyCount := 5 + (CurrentWave * 2)
+            for i in 0..EnemyCount - 1:
+                if (EnemySpawner <> false): EnemySpawner.Spawn()
+                Sleep(1.0)
+            Sleep(30.0)
+pvp_manager.verse
+verse
+using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
 
-func LevelUp() -> void:
-    player_level += 1
-    player_exp = 0
-    AddGold(50)
-```
+pvp_save_data := class(save_game):
+    var Elo : int = 1000
+    var Wins : int = 0
+    var Losses : int = 0
 
-### 3. pve_system.verse
-```verse
-func SpawnWave(wave: int) -> void:
-    var count = 5 + (wave * 2)
-    for i in 0..count:
-        SpawnEnemy(GetEnemyType(wave))
+PvpManager := class(creative_device):
+    @editable var Economy : economy_manager = economy_manager{}
+    @editable var MinStake : int = 50
+    @editable var MaxStake : int = 500
+    @editable var WinPercent : int = 30
+    
+    var PlayerData : [agent]pvp_save_data = map{}
+    
+    OnBegin<override>()<suspends>:
+        GetPlayspace().PlayerJoinedEvent.Subscribe(OnPlayerJoined)
+    
+    OnPlayerJoined(Player : agent) : void =
+        Saved := GetSaveData(Player)
+        if Saved = false: PlayerData[Player] = pvp_save_data{}
+        else: PlayerData[Player] = Saved
+    
+    GetSaveData(Player : agent) : ?pvp_save_data =
+        Data := pvp_save_data{}
+        if Data.Load(Player): return Data
+        return false
+    
+    SavePlayerData(Player : agent) : void =
+        Data := PlayerData[Player]
+        if Data <> false: Data.Save(Player)
+    
+    GetElo(Player : agent) : int =
+        Data := PlayerData[Player]
+        return if Data = false then 1000 else Data.Elo
+    
+    OnPvPFightEnd(Winner : agent, Loser : agent, Stake : int) : void =
+        if (Economy = false): return
+        if Stake < MinStake or Stake > MaxStake: return
+        if not Economy.HasEnoughGold(Loser, Stake): return
+        WinAmount := (Stake * WinPercent) / 100
+        Economy.AddGold(Winner, WinAmount)
+        Economy.SpendGold(Loser, Stake)
+        
+        WinnerElo := GetElo(Winner)
+        LoserElo := GetElo(Loser)
+        ExpectedWinner := 1.0 / (1.0 + 10.0 ** ((LoserElo - WinnerElo) / 400.0))
+        EloChange := 25 * (1.0 - ExpectedWinner)
+        
+        WinnerData := PlayerData[Winner]
+        LoserData := PlayerData[Loser]
+        if WinnerData <> false:
+            WinnerData.Elo += EloChange
+            WinnerData.Wins += 1
+            SavePlayerData(Winner)
+        if LoserData <> false:
+            LoserData.Elo -= EloChange
+            LoserData.Losses += 1
+            SavePlayerData(Loser)
+📐 Формулы
+Урон: (ATK_игрока - DEF_врага) × (1.0 + LCK/100 если крит)
 
-func OnEnemyKilled() -> void:
-    AddGold(GetReward())
-    AddExp(GetExpReward())
-```
+HP: 100 + (HP_стат × 5)
 
-### 4. pvp_manager.verse
-```verse
-func OnPvPEnd(winner: agent, loser: agent, stake: int) -> void:
-    AddGold(winner, stake * 0.3)
-    RemoveGold(loser, stake)
-```
+Награда: база × (1 + сложность/10) × модификатор_бустера
 
----
-
-## 📐 Формулы
-
-### Урон
-```
-урон = (ATK_игрока - DEF_врага) * модификатор_крита
-модификатор = 1.0 + (LCK / 100) если крит
-```
-
-### HP
-```
-hp_макс = 100 + (HP_статист * 5)
-```
-
-### Награда
-```
-награда = база * (1 + сложность/10) * модификатор_бустера
-```
-
----
-
-**Последнее обновление**: 31.05.2026
+Последнее обновление: 31.05.2026
