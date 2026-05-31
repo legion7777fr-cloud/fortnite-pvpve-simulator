@@ -1,0 +1,112 @@
+{
+  "enemies": [
+    {
+      "id": "goblin",
+      "name": "Goblin",
+      "level": "5-15",
+      "hp": 20,
+      "attack": 3,
+      "gold_reward": "10-15",
+      "exp_reward": 5,
+      "ability": "Escape (-50% damage for 3 sec)",
+      "spawn_zone": "forest",
+      "rarity": "common"
+    },
+    {
+      "id": "orc",
+      "name": "Orc",
+      "level": "10-25",
+      "hp": 40,
+      "attack": 5,
+      "gold_reward": "20-30",
+      "exp_reward": 10,
+      "ability": "Area Strike (damage in 5m radius)",
+      "spawn_zone": "forest",
+      "rarity": "uncommon"
+    },
+    {
+      "id": "skeletal_warrior",
+      "name": "Skeletal Warrior",
+      "level": "20-40",
+      "hp": 60,
+      "attack": 8,
+      "gold_reward": "40-60",
+      "exp_reward": 20,
+      "ability": "Parry (30% damage bounce back)",
+      "spawn_zone": "dungeon",
+      "rarity": "rare"
+    },
+    {
+      "id": "dark_mage",
+      "name": "Dark Mage",
+      "level": "30-50",
+      "hp": 50,
+      "attack": 10,
+      "gold_reward": "50-80",
+      "exp_reward": 25,
+      "ability": "Magic Missile (damage + stun 2 sec)",
+      "spawn_zone": "dungeon",
+      "rarity": "rare"
+    },
+    {
+      "id": "demon_boss",
+      "name": "Demon Boss",
+      "level": "50+",
+      "hp": 150,
+      "attack": 15,
+      "gold_reward": "300-500",
+      "exp_reward": 100,
+      "ability_1": "Fire Wall (20% max HP damage)",
+      "ability_2": "Teleport (random damage + stun)",
+      "spawn_zone": "dungeon",
+      "rarity": "legendary",
+      "waves": [3, 5]
+    }
+  ],
+  "waves": [
+    {
+      "wave": 1,
+      "enemy_count": 5,
+      "enemy_type": "Goblin",
+      "duration_seconds": 60,
+      "reward_gold": "50-75",
+      "reward_exp": "25-50"
+    },
+    {
+      "wave": 2,
+      "enemy_count": 8,
+      "enemy_types": ["Orc", "Goblin"],
+      "duration_seconds": 120,
+      "reward_gold": "100-150",
+      "reward_exp": "50-100"
+    },
+    {
+      "wave": 3,
+      "enemy_count": 10,
+      "enemy_types": ["Skeletal_Warrior", "Orc"],
+      "boss": true,
+      "boss_type": "Demon_Boss",
+      "duration_seconds": 180,
+      "reward_gold": "200-300",
+      "reward_exp": "100-150"
+    },
+    {
+      "wave": 4,
+      "enemy_count": 12,
+      "enemy_types": ["Dark_Mage", "Skeletal_Warrior"],
+      "duration_seconds": 150,
+      "reward_gold": "150-250",
+      "reward_exp": "75-125"
+    },
+    {
+      "wave": 5,
+      "enemy_count": 15,
+      "enemy_types": ["Dark_Mage", "Skeletal_Warrior", "Orc"],
+      "boss_count": 2,
+      "boss_type": "Demon_Boss",
+      "duration_seconds": 300,
+      "reward_gold": "500-1000",
+      "reward_exp": "200-300"
+    }
+  ]
+}
