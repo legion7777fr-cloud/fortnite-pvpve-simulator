@@ -1,0 +1,53 @@
+{
+  "zones": [
+    {
+      "id": "tavern",
+      "name": "Таверна (Безопасная зона)",
+      "type": "safe",
+      "size": "200x200",
+      "features": ["shop", "bank", "quests", "npc"],
+      "spawn_point": "0,0,100",
+      "description": "Начальная зона. Безопасно. Здесь магазин и банк."
+    },
+    {
+      "id": "forest",
+      "name": "Лесной фарм",
+      "type": "pve_beginner",
+      "size": "500x400",
+      "enemies": ["Goblin", "Orc"],
+      "danger_level": "low",
+      "spawn_point": "500,0,100",
+      "description": "Первая зона для фарма. Слабые враги, хорошие награды."
+    },
+    {
+      "id": "dungeon",
+      "name": "Подземелье",
+      "type": "pve_advanced",
+      "size": "800x600",
+      "enemies": ["Skeletal_Warrior", "Dark_Mage", "Demon_Boss"],
+      "danger_level": "high",
+      "spawn_point": "1000,0,100",
+      "entry_cost": 100,
+      "entry_cost_repeat": 50,
+      "description": "Сложная зона. 5 волн врагов. Большие награды."
+    },
+    {
+      "id": "pvp_arena",
+      "name": "PvP Арена",
+      "type": "pvp",
+      "size": "400x300",
+      "team_count": 2,
+      "spawn_point": "1500,0,100",
+      "description": "Игрок против игрока. Ставьте монеты!"
+    },
+    {
+      "id": "lobby",
+      "name": "Лобби",
+      "type": "social",
+      "size": "400x400",
+      "features": ["leaderboard", "stats", "zone_selector"],
+      "spawn_point": "2000,0,100",
+      "description": "Социальная зона. Лидеры и статистика."
+    }
+  ]
+}
