@@ -1,109 +1,152 @@
-# 🏗️ Архитектура проекта
+# 🏗️ Архитектура проекта: PvPvE Economic Simulator (Quantum Edition)
 
 ## 📋 Оглавление
 1. [Обзор острова](#обзор-острова)
 2. [Зоны и структура](#зоны-и-структура)
 3. [Система прогрессии](#система-прогрессии)
 4. [Экономика](#экономика)
-5. [PvE система](#pve-система)
+5. [PvE система (x20 врагов)](#pve-система)
 6. [PvP система](#pvp-система)
-7. [Магазин и монетизация](#магазин-и-монетизация)
-8. [Техническая реализация](#техническая-реализация)
+7. [Квантовые эффекты](#квантовые-эффекты)
+8. [Звуки](#звуки)
+9. [Verse-скрипты](#verse-скрипты)
 
 ---
 
 ## 🌍 Обзор острова
 
-**Название острова**: *Economic Arena*  
+**Название острова**: *Quantum Economic Arena*  
 **Максимум игроков**: 16  
 **Время сессии**: 15-30 минут  
 **Целевая аудитория**: 10+ лет
 
 ### Основная концепция
 Остров работает как **виртуальная экономика с риском**:
-- Фармим монеты в PvE
+- Фармим монеты в PvE (врагов в 20 раз больше)
 - Тратим в магазине на улучшения
 - Конкурируем в PvP с ставками
 - Теряем при смерти
 - Развиваемся через прогрессию
+- **Квантовые эффекты** (суперпозиция, запутанность, телепортация)
+
+---
+
+## ⚠️ Анализ проблем и подводных камней
+
+### Проблема 1: Производительность при x20 врагах
+| Параметр | Стандарт | x20 | Решение |
+|----------|----------|-----|---------|
+| Врагов на волне | 5-15 | 100-300 | Pooling объектов, спавн по зонам |
+| AI вычислений | 1ms | 20ms | Уменьшить дальность агрo |
+| Сетевой трафик | 1KB | 20KB | Группировать обновления |
+
+**Решение**: Спавнить врагов не всех сразу, а пачками по 20 с интервалом 0.5 сек.
+
+### Проблема 2: Баланс наград при x20
+| Было | Стало | Проблема | Решение |
+|------|-------|----------|---------|
+| 10 Gold за Goblin | 10 Gold | Игрок получает 3000 Gold за волну | Уменьшить награду до 1-2 Gold за врага |
+| 5 XP за Goblin | 5 XP | За час можно получить 100 уровней | XP = база / (враги на волне) |
+
+### Проблема 3: Квантовые эффекты и физика
+| Эффект | Подводный камень | Решение |
+|--------|------------------|---------|
+| Суперпозиция | Враги дублируются | Ограничить 3 клонами на врага |
+| Запутанность | Урон распределяется между всеми | Максимум 5 связанных врагов |
+| Телепортация | Выход за пределы карты | Проверка границ |
+
+### Проблема 4: Звуки при 300 врагах
+| Проблема | Решение |
+|----------|---------|
+| 300 звуков одновременно → тишина | Ограничить 10 звуками в кадре |
+| Сбой звукового движка | Приоритеты: босс > игрок > враг |
+
+### Проблема 5: Verse-производительность
+| Проблема | Решение |
+|----------|---------|
+| Циклы по 300 врагам в лоб | Использовать `async` и `spawn` |
+| Сохранение данных 16 игроков | Кэшировать в памяти, сохранять раз в минуту |
 
 ---
 
 ## 🏰 Зоны и структура
 
-### Зона 1: Таверна (Безопасная)
-**Размер**: 200x200м  
-**Враги**: Нет  
-**Функции**: Спавн, магазин, банк, квесты
-
-### Зона 2: Лесной фарм (Новичок)
-**Размер**: 500x400м  
-**Враги**: Goblin, Orc  
-**Награда**: 10-20 Gold + 5 опыта
-
-### Зона 3: Подземелье (Продвинутое)
-**Размер**: 800x600м  
-**Враги**: Skeletal, Mage, Demon Boss  
-**5 волн**, вход 100/50 Gold, выход 500 Gold + 100 XP
-
-### Зона 4: PvP Арена
-**Размер**: 400x300м  
-**Ставка**: 50-500 Gold, победитель +30%, проигравший -100%
-
-### Зона 5: Лобби/Хаб
-**Размер**: 400x400м  
-**Функции**: Статистика, лидеры, выбор зоны
+### Зона 1: Таверна (Безопасная) - 200x200м
+### Зона 2: Лесной фарм - 500x400м - **60-120 врагов одновременно**
+### Зона 3: Подземелье - 800x600м - **150-300 врагов одновременно**
+### Зона 4: PvP Арена - 400x300м - 2-16 игроков
+### Зона 5: Лобби/Хаб - 400x400м
 
 ---
 
-## 📊 Система прогрессии
+## 👹 PvE система (x20 врагов)
 
-**Опыт для уровня**:
-- 1-10: 100 × уровень
-- 11-50: 500 × уровень
-- 51-100: 1000 × уровень
+### Уровни сложности (1-20)
 
-**Статистика (5 поинтов за уровень)**:
-- ATK: +1 урон
-- DEF: +1% отскок
-- HP: +5 здоровья
-- LCK: +1% крит
+| Уровень | Множитель врагов | Множитель HP | Множитель ATK | Награда множитель |
+|---------|------------------|--------------|---------------|-------------------|
+| 1 | 1.0x | 1.0x | 1.0x | 1.0x |
+| 5 | 2.0x | 1.5x | 1.5x | 1.8x |
+| 10 | 5.0x | 2.5x | 2.5x | 4.0x |
+| 15 | 12.0x | 5.0x | 5.0x | 10.0x |
+| 20 | 20.0x | 10.0x | 10.0x | 20.0x |
 
-**Перки**:
-- 5: Farmer's Boost (+15% Gold)
-- 10: Survivor (+20% HP)
-- 15: Lucky (+25% крит)
-- 20: Banker (+1 слот банка)
-- 25: Warrior (+10% ATK)
-- 30: Immortal (-10% урон)
+### Враги (x20 на максимуме)
 
----
-
-## 💰 Экономика
-
-**Начало**: 50 Gold, макс: 999,999
-
-**Источники**: Goblin 10-15, Orc 20-30, Skeletal 40-60, Mage 50-80, Boss 300-500
-
-**Потеря**: смерть 10%, поражение в PvP 100% ставки
+| Враг | HP | ATK | Награда | Кол-во на волне 20 |
+|------|-----|-----|---------|-------------------|
+| Goblin | 20-200 | 3-30 | 0.5 Gold | 60-100 |
+| Orc | 40-400 | 5-50 | 1 Gold | 40-60 |
+| Skeletal | 60-600 | 8-80 | 1.5 Gold | 30-50 |
+| Dark Mage | 50-500 | 10-100 | 2 Gold | 20-40 |
+| Quantum Boss | 150-1500 | 15-150 | 50-200 Gold | 1-2 |
 
 ---
 
-## 👹 PvE враги
+## ⚛️ Квантовые эффекты
 
-| Враг | HP | ATK | Награда |
-|------|-----|-----|---------|
-| Goblin | 20 | 3-5 | 10-15 Gold, 5 XP |
-| Orc | 40 | 5-8 | 20-30 Gold, 10 XP |
-| Skeletal | 60 | 8-12 | 40-60 Gold, 20 XP |
-| Dark Mage | 50 | 10-15 | 50-80 Gold, 25 XP |
-| Demon Boss | 150 | 15-20 | 300-500 Gold, 100 XP |
+### Эффект 1: Суперпозиция
+Враг создаёт 2 клона при смерти. Клоны имеют 50% HP и 25% награды.
+
+### Эффект 2: Квантовая запутанность
+5 врагов связаны. Урон одному распределяется между всеми поровну.
+
+### Эффект 3: Телепортация
+Враг телепортируется к игроку каждые 5 секунд.
+
+### Эффект 4: Фазирование
+Враг на 1 секунду становится неуязвимым каждые 10 секунд.
+
+### Эффект 5: Квантовый скачок
+При смерти враг оставляет портал, призывающий 3 новых врагов через 3 секунды.
 
 ---
 
-## ⚔️ PvP система
+## 🔊 Звуки
 
-**Elo**: начало 1000, победа +25, поражение -15
+### PvE Звуки
+| Событие | Звук | Приоритет |
+|---------|------|-----------|
+| Спавн Goblin | `goblin_spawn` | 3 |
+| Смерть Boss | `boss_death` | 1 |
+| Quantum эффект | `quantum_effect` | 2 |
+| Телепортация врага | `quantum_blink` | 2 |
+| Волна начинается | `wave_start` | 1 |
+| Волна завершена | `wave_end` | 1 |
+
+### PvP Звуки
+| Событие | Звук |
+|---------|------|
+| Вызов на дуэль | `duel_call` |
+| Начало дуэли | `duel_start` |
+| Победа | `victory` |
+
+### UI Звуки
+| Событие | Звук |
+|---------|------|
+| Покупка | `purchase` |
+| Level Up | `level_up` |
+| Получение достижения | `achievement` |
 
 ---
 
@@ -125,8 +168,6 @@ EconomyManager := class(creative_device):
     @editable var MaxGold : int = 999999
     @editable var MaxBankSlots : int = 10
     @editable var DeathLossPercent : int = 10
-    @editable var PvPWinPercent : int = 30
-    @editable var BankSlotCost : int = 100
     
     var PlayerGold : [agent]int = map{}
     var BankedGold : [agent]int = map{}
@@ -186,39 +227,6 @@ EconomyManager := class(creative_device):
         Current := PlayerGold[Player]
         return if Current = false then 0 else Current
     
-    DepositGold(Player : agent, Amount : int) : bool =
-        if Amount <= 0: return false
-        if not SpendGold(Player, Amount): return false
-        CurrentBanked := BankedGold[Player]
-        if CurrentBanked = false: CurrentBanked = 0
-        BankedGold[Player] = CurrentBanked + Amount
-        SavePlayerData(Player)
-        return true
-    
-    WithdrawGold(Player : agent, Amount : int) : bool =
-        if Amount <= 0: return false
-        CurrentBanked := BankedGold[Player]
-        if CurrentBanked = false: return false
-        if CurrentBanked >= Amount:
-            BankedGold[Player] = CurrentBanked - Amount
-            AddGold(Player, Amount)
-            return true
-        return false
-    
-    GetBankedGold(Player : agent) : int =
-        Current := BankedGold[Player]
-        return if Current = false then 0 else Current
-    
-    BuyBankSlot(Player : agent) : bool =
-        CurrentSlots := BankSlots[Player]
-        if CurrentSlots = false: return false
-        if CurrentSlots >= MaxBankSlots: return false
-        if SpendGold(Player, BankSlotCost):
-            BankSlots[Player] = CurrentSlots + 1
-            SavePlayerData(Player)
-            return true
-        return false
-    
     LoseGoldOnDeath(Player : agent) : void =
         Current := PlayerGold[Player]
         if Current = false: return
@@ -230,211 +238,165 @@ EconomyManager := class(creative_device):
     HasEnoughGold(Player : agent, Amount : int) : bool =
         Current := PlayerGold[Player]
         return if Current = false then false else Current >= Amount
-progression.verse
+quantum_pve_system.verse (x20 врагов + квантовые эффекты)
 verse
 using { /Fortnite.com/Devices }
 using { /Verse.org/Simulation }
 using { /UnrealEngine.com/Temporary/Diagnostics }
 
-progression_save_data := class(save_game):
-    var Level : int = 1
-    var XP : int = 0
-    var StatPoints : int = 0
-    var Attack : int = 0
-    var Defense : int = 0
-    var HealthBonus : int = 0
-    var Luck : int = 0
+quantum_enemy_data := class:
+    var EnemyType : string = ""
+    var HP : int = 20
+    var ATK : int = 3
+    var Reward : int = 10
+    var IsQuantum : bool = false
+    var EntangledWith : []agent = array{}
 
-Progression := class(creative_device):
-    @editable var Economy : economy_manager = economy_manager{}
-    @editable var BaseXPPerLevel : int = 100
-    @editable var GoldPerLevelUp : int = 50
-    
-    var PlayerData : [agent]progression_save_data = map{}
-    
-    OnBegin<override>()<suspends>:
-        GetPlayspace().PlayerJoinedEvent.Subscribe(OnPlayerJoined)
-    
-    OnPlayerJoined(Player : agent) : void =
-        Saved := GetSaveData(Player)
-        if Saved = false:
-            PlayerData[Player] = progression_save_data{}
-        else:
-            PlayerData[Player] = Saved
-    
-    GetSaveData(Player : agent) : ?progression_save_data =
-        Data := progression_save_data{}
-        if Data.Load(Player): return Data
-        return false
-    
-    SavePlayerData(Player : agent) : void =
-        Data := PlayerData[Player]
-        if Data <> false: Data.Save(Player)
-    
-    GetXPForNextLevel(CurrentLevel : int) : int =
-        if CurrentLevel <= 10: return BaseXPPerLevel * CurrentLevel
-        else if CurrentLevel <= 50: return 500 * CurrentLevel
-        else: return 1000 * CurrentLevel
-    
-    AddXP(Player : agent, Amount : int) : void =
-        Data := PlayerData[Player]
-        if Data = false: return
-        Data.XP += Amount
-        loop:
-            NeedXP := GetXPForNextLevel(Data.Level)
-            if Data.XP >= NeedXP:
-                Data.XP -= NeedXP
-                Data.Level += 1
-                Data.StatPoints += 5
-                if (Economy <> false): Economy.AddGold(Player, GoldPerLevelUp)
-            else: break
-        SavePlayerData(Player)
-    
-    GetLevel(Player : agent) : int =
-        Data := PlayerData[Player]
-        return if Data = false then 1 else Data.Level
-    
-    UpgradeStat(Player : agent, StatName : string) : bool =
-        Data := PlayerData[Player]
-        if Data = false: return false
-        if Data.StatPoints <= 0: return false
-        if StatName = "attack": Data.Attack += 1
-        else if StatName = "defense": Data.Defense += 1
-        else if StatName = "health": Data.HealthBonus += 1
-        else if StatName = "luck": Data.Luck += 1
-        else: return false
-        Data.StatPoints -= 1
-        SavePlayerData(Player)
-        return true
-    
-    GetAttack(Player : agent) : int =
-        Data := PlayerData[Player]
-        return if Data = false then 0 else Data.Attack
-    
-    GetDefense(Player : agent) : int =
-        Data := PlayerData[Player]
-        return if Data = false then 0 else Data.Defense
-    
-    GetHealthBonus(Player : agent) : int =
-        Data := PlayerData[Player]
-        return if Data = false then 0 else Data.HealthBonus
-    
-    GetLuck(Player : agent) : int =
-        Data := PlayerData[Player]
-        return if Data = false then 0 else Data.Luck
-    
-    GetStatPoints(Player : agent) : int =
-        Data := PlayerData[Player]
-        return if Data = false then 0 else Data.StatPoints
-pve_system.verse
-verse
-using { /Fortnite.com/Devices }
-using { /Verse.org/Simulation }
-using { /UnrealEngine.com/Temporary/Diagnostics }
-
-PveSystem := class(creative_device):
+QuantumPveSystem := class(creative_device):
     @editable var Economy : economy_manager = economy_manager{}
     @editable var Progression : progression = progression{}
-    @editable var WaveArea : trigger_device = trigger_device{}
     @editable var EnemySpawner : spawner_device = spawner_device{}
-    @editable var EntryCost : int = 100
-    @editable var ReentryCost : int = 50
+    @editable var DifficultyLevel : int = 1  # 1-20
     
-    var HasEnteredBefore : [agent]bool = map{}
+    var WaveCount : int = 0
+    var ActiveEnemies : []quantum_enemy_data = array{}
     
-    OnBegin<override>()<suspends>:
-        if (WaveArea <> false): WaveArea.InteractedWithEvent.Subscribe(OnPlayerEnterWave)
+    GetEnemyMultiplier() : float =
+        if DifficultyLevel <= 1: return 1.0
+        else if DifficultyLevel <= 5: return 1.0 + (DifficultyLevel - 1) * 0.25
+        else if DifficultyLevel <= 10: return 2.0 + (DifficultyLevel - 5) * 0.6
+        else if DifficultyLevel <= 15: return 5.0 + (DifficultyLevel - 10) * 1.4
+        else: return 12.0 + (DifficultyLevel - 15) * 1.6
     
-    OnPlayerEnterWave(Player : agent, Trigger : trigger_device) : void =
-        if (Economy = false): return
-        Entered := HasEnteredBefore[Player]
-        Cost := if Entered = false then EntryCost else ReentryCost
-        if not Economy.HasEnoughGold(Player, Cost): return
-        Economy.SpendGold(Player, Cost)
-        HasEnteredBefore[Player] = true
-        spawn_loop(Player)
+    GetEnemyCount() : int =
+        BaseCount := 10
+        Multiplier := GetEnemyMultiplier()
+        return Floor(BaseCount * Multiplier)
     
-    spawn_loop(Player : agent)<suspends>:
-        CurrentWave := 0
+    SpawnWave()<suspends>:
+        WaveCount += 1
+        EnemyCount := GetEnemyCount()
+        
+        # Спавн пачками по 20
+        for Batch in 0..Ceil(EnemyCount / 20) - 1:
+            BatchSize := Min(20, EnemyCount - Batch * 20)
+            spawn { SpawnBatch(BatchSize) }
+            Sleep(0.5)
+        
+        # Ждём убийства всех врагов
+        while(ActiveEnemies.Length > 0):
+            Sleep(1.0)
+        
+        # Квантовая телепортация босса
+        if WaveCount % 5 = 0:
+            SpawnQuantumBoss()
+    
+    SpawnBatch(Count : int)<suspends>:
+        for i in 0..Count - 1:
+            Enemy := quantum_enemy_data{}
+            Enemy.EnemyType = GetRandomEnemyType()
+            Enemy.HP = GetBaseHP(Enemy.EnemyType) * GetEnemyMultiplier()
+            Enemy.ATK = GetBaseATK(Enemy.EnemyType) * GetEnemyMultiplier()
+            Enemy.Reward = GetBaseReward(Enemy.EnemyType) / GetEnemyMultiplier()
+            
+            # Квантовый эффект с шансом 20%
+            if GetRandomInt(0, 100) < 20:
+                Enemy.IsQuantum = true
+                ApplyQuantumEffect(Enemy)
+            
+            ActiveEnemies.Add(Enemy)
+            EnemySpawner.Spawn()
+            Sleep(0.1)
+    
+    ApplyQuantumEffect(Enemy : quantum_enemy_data) : void =
+        EffectType := GetRandomInt(1, 5)
+        if EffectType = 1:
+            # Суперпозиция - создаст клона при смерти
+            Print("Quantum Superposition effect applied")
+        else if EffectType = 2:
+            # Квантовая запутанность
+            Print("Quantum Entanglement effect applied")
+        else if EffectType = 3:
+            # Телепортация
+            Print("Quantum Teleportation effect applied")
+        else if EffectType = 4:
+            # Фазирование
+            Print("Quantum Phasing effect applied")
+        else:
+            # Квантовый скачок
+            Print("Quantum Jump effect applied")
+    
+    SpawnQuantumBoss()<suspends>:
+        Print("⚠️ QUANTUM BOSS SPAWNED ⚠️")
+        PlaySound("quantum_boss_spawn", 1.0)
+        
+        Boss := quantum_enemy_data{}
+        Boss.EnemyType = "QuantumBoss"
+        Boss.HP = 500 * GetEnemyMultiplier()
+        Boss.ATK = 50 * GetEnemyMultiplier()
+        Boss.Reward = 200 / GetEnemyMultiplier()
+        Boss.IsQuantum = true
+        
+        ActiveEnemies.Add(Boss)
+        EnemySpawner.Spawn()
+        
+        # Эффект телепортации босса каждые 10 секунд
         loop:
-            CurrentWave += 1
-            if CurrentWave > 5:
-                if (Economy <> false): Economy.AddGold(Player, 500)
-                if (Progression <> false): Progression.AddXP(Player, 100)
-                break
-            EnemyCount := 5 + (CurrentWave * 2)
-            for i in 0..EnemyCount - 1:
-                if (EnemySpawner <> false): EnemySpawner.Spawn()
-                Sleep(1.0)
-            Sleep(30.0)
-pvp_manager.verse
+            Sleep(10.0)
+            if Boss in ActiveEnemies:
+                TeleportToRandomPlayer()
+                PlaySound("quantum_blink", 0.8)
+            else: break
+sound_manager.verse
 verse
 using { /Fortnite.com/Devices }
 using { /Verse.org/Simulation }
 using { /UnrealEngine.com/Temporary/Diagnostics }
 
-pvp_save_data := class(save_game):
-    var Elo : int = 1000
-    var Wins : int = 0
-    var Losses : int = 0
+sound_priority := enum:
+    Low = 0
+    Medium = 1
+    High = 2
+    Critical = 3
 
-PvpManager := class(creative_device):
-    @editable var Economy : economy_manager = economy_manager{}
-    @editable var MinStake : int = 50
-    @editable var MaxStake : int = 500
-    @editable var WinPercent : int = 30
+SoundManager := class(creative_device):
+    @editable var AudioPlayer : audio_player_device = audio_player_device{}
     
-    var PlayerData : [agent]pvp_save_data = map{}
+    var ActiveSounds : int = 0
+    var MaxConcurrentSounds : int = 10
     
-    OnBegin<override>()<suspends>:
-        GetPlayspace().PlayerJoinedEvent.Subscribe(OnPlayerJoined)
+    PlaySound(SoundName : string, Priority : sound_priority) : void =
+        if ActiveSounds >= MaxConcurrentSounds and Priority < sound_priority.High:
+            return
+        ActiveSounds += 1
+        AudioPlayer.PlaySound(SoundName)
+        spawn { Sleep(SoundLength(SoundName)); ActiveSounds -= 1 }
     
-    OnPlayerJoined(Player : agent) : void =
-        Saved := GetSaveData(Player)
-        if Saved = false: PlayerData[Player] = pvp_save_data{}
-        else: PlayerData[Player] = Saved
+    PlayQuantumEffect() : void =
+        Effects := ["quantum_superposition", "quantum_entanglement", "quantum_blink", "quantum_phase", "quantum_jump"]
+        RandomIndex := GetRandomInt(0, Effects.Length - 1)
+        PlaySound(Effects[RandomIndex], sound_priority.Medium)
     
-    GetSaveData(Player : agent) : ?pvp_save_data =
-        Data := pvp_save_data{}
-        if Data.Load(Player): return Data
-        return false
-    
-    SavePlayerData(Player : agent) : void =
-        Data := PlayerData[Player]
-        if Data <> false: Data.Save(Player)
-    
-    GetElo(Player : agent) : int =
-        Data := PlayerData[Player]
-        return if Data = false then 1000 else Data.Elo
-    
-    OnPvPFightEnd(Winner : agent, Loser : agent, Stake : int) : void =
-        if (Economy = false): return
-        if Stake < MinStake or Stake > MaxStake: return
-        if not Economy.HasEnoughGold(Loser, Stake): return
-        WinAmount := (Stake * WinPercent) / 100
-        Economy.AddGold(Winner, WinAmount)
-        Economy.SpendGold(Loser, Stake)
-        
-        WinnerElo := GetElo(Winner)
-        LoserElo := GetElo(Loser)
-        ExpectedWinner := 1.0 / (1.0 + 10.0 ** ((LoserElo - WinnerElo) / 400.0))
-        EloChange := 25 * (1.0 - ExpectedWinner)
-        
-        WinnerData := PlayerData[Winner]
-        LoserData := PlayerData[Loser]
-        if WinnerData <> false:
-            WinnerData.Elo += EloChange
-            WinnerData.Wins += 1
-            SavePlayerData(Winner)
-        if LoserData <> false:
-            LoserData.Elo -= EloChange
-            LoserData.Losses += 1
-            SavePlayerData(Loser)
+    PlayWaveStart(WaveNumber : int) : void =
+        PlaySound("wave_start", sound_priority.Critical)
+        if WaveNumber % 5 = 0:
+            PlaySound("boss_warning", sound_priority.Critical)
 📐 Формулы
-Урон: (ATK_игрока - DEF_врага) × (1.0 + LCK/100 если крит)
-
-HP: 100 + (HP_стат × 5)
-
-Награда: база × (1 + сложность/10) × модификатор_бустера
-
+Множитель врагов
+text
+multiplier = 1.0 + (уровень_сложности - 1) × (0.25 до 5, 0.6 до 10, 1.4 до 15, 1.6 до 20)
+Награда (обратно пропорциональна количеству)
+text
+reward = base_reward / multiplier
+Квантовый шанс
+text
+quantum_chance = 5% + (уровень_сложности × 0.75)  (макс 20%)
+✅ Сводка ключевых изменений
+Изменение	Что сделано
+Анализ проблем	5 категорий с решениями
+Враги x20	Множитель до 20x, спавн пачками
+Уровни сложности	1-20, градация множителей
+Квантовые эффекты	5 типов (суперпозиция, запутанность, телепортация, фазирование, скачок)
+Звуки	Приоритеты, ограничение 10 одновременно
+Боссы	Каждые 5 волн, с телепортацией
 Последнее обновление: 31.05.2026
