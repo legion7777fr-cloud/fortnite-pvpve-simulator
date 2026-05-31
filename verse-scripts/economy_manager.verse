@@ -1,87 +1,153 @@
-# Economy Manager
-# Управление валютой игрока (Gold Coins)
-
 using { /Fortnite.com/Devices }
-using { /UnrealEngine.com/Transient }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
 
-class EconomyManager:
-    var PlayerGold: int = 50
-    var MaxGold: int = 999999
-    var BankSlots: int = 1
-    var MaxBankSlots: int = 10
-    var BankedGold: int = 0
-
-    # Инициализация новой сессии игрока
-    public Init() -> void:
-        PlayerGold = 50
-        BankedGold = 0
-        BankSlots = 1
-
+# Управление валютой игрока (Gold Coins)
+# Это устройство нужно разместить на карте
+EconomyManager := class(creative_device):
+    
+    # Настраиваемые параметры (видны в редакторе)
+    @editable
+    var StartingGold : int = 50
+    
+    @editable
+    var MaxGold : int = 999999
+    
+    @editable
+    var MaxBankSlots : int = 10
+    
+    @editable
+    var DeathLossPercent : int = 10  # Потеря 10% при смерти
+    
+    @editable
+    var PvPWinPercent : int = 30    # Выигрыш 30% ставки
+    
+    # Переменные для каждого игрока
+    var PlayerGold : [agent]int = map{}
+    var BankedGold : [agent]int = map{}
+    var BankSlots : [agent]int = map{}
+    
+    # Вызывается при старте игры
+    OnBegin<override>()<suspends>:
+        Print("Economy Manager initialized")
+        
+        # Подписываемся на события
+        GetPlayspace().PlayerJoinedEvent.Subscribe(OnPlayerJoined)
+        GetPlayspace().PlayerDiedEvent.Subscribe(OnPlayerDied)
+    
+    # Когда игрок заходит на остров
+    OnPlayerJoined(Player : agent) : void =
+        if not PlayerGold[Player]:
+            PlayerGold[Player] = StartingGold
+            BankedGold[Player] = 0
+            BankSlots[Player] = 1
+            Print("Player joined. Gold: " + StartingGold)
+    
     # Добавить золото
-    public AddGold(Amount: int) -> void:
+    AddGold(Player : agent, Amount : int) : void =
         if Amount <= 0:
             return
-        var NewGold = PlayerGold + Amount
-        PlayerGold = Min(NewGold, MaxGold)
-        Print("Added {Amount} gold. Total: {PlayerGold}")
-
+        
+        var Current = PlayerGold[Player]
+        if Current = false:
+            Current = 0
+        
+        var NewGold := Current + Amount
+        if NewGold > MaxGold:
+            NewGold = MaxGold
+        
+        PlayerGold[Player] = NewGold
+        Print("Added " + Amount + " gold. Total: " + NewGold)
+    
     # Потратить золото
-    public SpendGold(Amount: int) -> bool:
+    SpendGold(Player : agent, Amount : int) : bool =
         if Amount <= 0:
             return false
-        if PlayerGold >= Amount:
-            PlayerGold -= Amount
-            Print("Spent {Amount} gold. Remaining: {PlayerGold}")
+        
+        var Current = PlayerGold[Player]
+        if Current = false:
+            return false
+        
+        if Current >= Amount:
+            PlayerGold[Player] = Current - Amount
+            Print("Spent " + Amount + " gold. Remaining: " + (Current - Amount))
             return true
-        Print("Not enough gold. Need: {Amount}, Have: {PlayerGold}")
+        
+        Print("Not enough gold. Need: " + Amount + ", Have: " + Current)
         return false
-
-    # Получить текущее количество золота
-    public GetGold() -> int:
-        return PlayerGold
-
-    # Положить золото в банк
-    public DepositGold(Amount: int) -> bool:
+    
+    # Получить текущее золото
+    GetGold(Player : agent) : int =
+        var Current = PlayerGold[Player]
+        if Current = false:
+            return 0
+        return Current
+    
+    # Положить в банк
+    DepositGold(Player : agent, Amount : int) : bool =
         if Amount <= 0:
             return false
-        if not SpendGold(Amount):
+        
+        if not SpendGold(Player, Amount):
             return false
-        BankedGold += Amount
+        
+        var CurrentBanked = BankedGold[Player]
+        if CurrentBanked = false:
+            CurrentBanked = 0
+        
+        BankedGold[Player] = CurrentBanked + Amount
         return true
-
-    # Снять золото из банка
-    public WithdrawGold(Amount: int) -> bool:
+    
+    # Снять из банка
+    WithdrawGold(Player : agent, Amount : int) : bool =
         if Amount <= 0:
             return false
-        if BankedGold >= Amount:
-            BankedGold -= Amount
-            AddGold(Amount)
+        
+        var CurrentBanked = BankedGold[Player]
+        if CurrentBanked = false:
+            return false
+        
+        if CurrentBanked >= Amount:
+            BankedGold[Player] = CurrentBanked - Amount
+            AddGold(Player, Amount)
             return true
+        
         return false
-
-    # Потеря золота при смерти (% от текущего)
-    public LoseGoldOnDeath() -> void:
-        var LossPercent = 10
-        var GoldToLose = (PlayerGold * LossPercent) / 100
-        if GoldToLose > 0:
-            SpendGold(GoldToLose)
-            Print("Lost {GoldToLose} gold on death")
-
-    # Потеря золота в PvP при поражении
-    public LoseGoldPvP(StakeAmount: int) -> void:
-        SpendGold(StakeAmount)
-        Print("Lost {StakeAmount} gold in PvP")
-
-    # Получить золото в PvP при победе
-    public WinGoldPvP(StakeAmount: int) -> void:
-        var WinAmount = (StakeAmount * 30) / 100  # 30% ставки
-        AddGold(WinAmount)
-        Print("Won {WinAmount} gold in PvP")
-
-    # Проверка достаточности золота
-    public HasEnoughGold(Amount: int) -> bool:
-        return PlayerGold >= Amount
-
-    # Полная перезагрузка статов (затратное)
-    public ResetStats(Cost: int) -> bool:
-        return SpendGold(Cost)
+    
+    # Потеря при смерти
+    LoseGoldOnDeath(Player : agent) : void =
+        var Current = PlayerGold[Player]
+        if Current = false:
+            return
+        
+        var ToLose := (Current * DeathLossPercent) / 100
+        if ToLose > 0:
+            SpendGold(Player, ToLose)
+            Print("Lost " + ToLose + " gold on death")
+    
+    # Выигрыш в PvP
+    WinGoldPvP(Player : agent, StakeAmount : int) : void =
+        var WinAmount := (StakeAmount * PvPWinPercent) / 100
+        if WinAmount > 0:
+            AddGold(Player, WinAmount)
+            Print("Won " + WinAmount + " gold in PvP")
+    
+    # Проигрыш в PvP
+    LoseGoldPvP(Player : agent, StakeAmount : int) : void =
+        SpendGold(Player, StakeAmount)
+        Print("Lost " + StakeAmount + " gold in PvP")
+    
+    # Проверка достаточно ли золота
+    HasEnoughGold(Player : agent, Amount : int) : bool =
+        var Current = PlayerGold[Player]
+        if Current = false:
+            return false
+        return Current >= Amount
+    
+    # Обработка смерти игрока
+    OnPlayerDied(Event : player_died_event) : void =
+        LoseGoldOnDeath(Event.KilledAgent)
+    
+    # Сброс статистики (нужно реализовать отдельно)
+    ResetStats(Player : agent, Cost : int) : bool =
+        return SpendGold(Player, Cost)
