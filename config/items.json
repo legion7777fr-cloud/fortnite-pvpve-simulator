@@ -1,0 +1,129 @@
+{
+  "cosmetics": [
+    {
+      "id": "skin_warrior",
+      "name": "Warrior Skin",
+      "rarity": "common",
+      "price": 150,
+      "description": "Cool warrior outfit",
+      "type": "skin"
+    },
+    {
+      "id": "skin_mage",
+      "name": "Mage Skin",
+      "rarity": "rare",
+      "price": 250,
+      "description": "Magical robes",
+      "type": "skin"
+    },
+    {
+      "id": "skin_demon",
+      "name": "Demon Skin",
+      "rarity": "epic",
+      "price": 500,
+      "description": "Dark and powerful",
+      "type": "skin"
+    },
+    {
+      "id": "trail_fire",
+      "name": "Fire Trail",
+      "rarity": "rare",
+      "price": 200,
+      "description": "Leave fire traces when running",
+      "type": "trail"
+    },
+    {
+      "id": "effect_kill",
+      "name": "Victory Effect",
+      "rarity": "rare",
+      "price": 200,
+      "description": "Special effect on elimination",
+      "type": "effect"
+    }
+  ],
+  "boosters": [
+    {
+      "id": "booster_gold",
+      "name": "Gold Booster",
+      "price": 200,
+      "effect": "+50% Gold",
+      "duration_hours": 1,
+      "description": "Double your gold earnings!"
+    },
+    {
+      "id": "booster_exp",
+      "name": "Experience Booster",
+      "price": 200,
+      "effect": "+50% Experience",
+      "duration_hours": 1,
+      "description": "Level up faster!"
+    },
+    {
+      "id": "booster_combo",
+      "name": "Combo Pack",
+      "price": 400,
+      "effect": "+50% Gold, +50% Exp, -20% Shop prices",
+      "duration_hours": 1,
+      "description": "Everything at once!"
+    }
+  ],
+  "upgrades": [
+    {
+      "id": "bank_slot",
+      "name": "Bank Slot",
+      "price": 300,
+      "description": "+50 storage capacity",
+      "type": "storage",
+      "stack": 9
+    }
+  ],
+  "subscriptions": [
+    {
+      "id": "vip_week",
+      "name": "VIP Pass",
+      "price": 1000,
+      "duration_days": 7,
+      "benefits": [
+        "+30% Gold from enemies",
+        "+20% Experience",
+        "Access to VIP zone",
+        "-10% shop prices",
+        "Priority in events"
+      ]
+    }
+  ],
+  "access_passes": [
+    {
+      "id": "hard_dungeon",
+      "name": "Hard Dungeon Pass",
+      "price": 500,
+      "duration_days": 7,
+      "description": "2x rewards in hard difficulty",
+      "type": "access"
+    },
+    {
+      "id": "boss_hunt",
+      "name": "Boss Hunt Pass",
+      "price": 500,
+      "duration_days": 7,
+      "description": "Hunt bosses independently",
+      "type": "access"
+    },
+    {
+      "id": "private_arena",
+      "name": "Private Arena Pass",
+      "price": 1000,
+      "duration_days": 7,
+      "description": "Play PvP with friends only",
+      "type": "access"
+    },
+    {
+      "id": "event_pass",
+      "name": "Event Pass",
+      "price": 2000,
+      "duration_days": 7,
+      "description": "Access weekly events",
+      "type": "access"
+    }
+  ]
+}
